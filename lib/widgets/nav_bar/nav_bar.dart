@@ -13,7 +13,7 @@ class ChatNavBar extends StatelessWidget {
       icon: const Icon(Icons.home),
     ),
     DotNavigationBarItem(
-      icon: const Icon(Icons.chat),
+      icon: const Icon(Icons.list),
     ),
     DotNavigationBarItem(
       icon: const Icon(Icons.person),

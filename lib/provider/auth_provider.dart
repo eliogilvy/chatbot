@@ -1,3 +1,4 @@
+import 'package:chat_app/model/conversation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -18,7 +19,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      await initUser(email, name);
+      await _initUser(email, name);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         return 'The password provided is too weak.';
@@ -31,11 +32,8 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  Future<void> initUser(String email, String name) async {
-    await fb
-        .collection('users')
-        .doc(firebaseAuth.currentUser!.uid)
-        .set({'username': name, 'email': email});
+  Future<void> _initUser(String email, String name) async {
+    final userDoc = fb.collection('users').doc(firebaseAuth.currentUser!.uid);
 
     // create initial flutter_chat_ui textmessage
     final welcome = types.TextMessage(
@@ -45,15 +43,31 @@ class AuthProvider with ChangeNotifier {
       createdAt: DateTime.now().millisecondsSinceEpoch,
     );
 
-    // add collection for messages using flutter_chat_ui textmessage
-    await fb
-        .collection('users')
-        .doc(firebaseAuth.currentUser!.uid)
-        .collection('messages')
-        .doc(welcome.id)
-        .set(
-          welcome.toJson(),
+    // initial conversation
+    final convID = const Uuid().v4();
+    final initConversation = Conversation(
+      id: convID,
+      title: 'Welcome!',
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      lastUpdated: DateTime.now().millisecondsSinceEpoch,
+    );
+
+    // add user to users collection
+    await userDoc.set({
+      'username': name,
+      'email': email,
+    });
+
+    // add initial convo
+    await userDoc.collection('conversations').doc(convID).set(
+          initConversation.toJson(),
         );
+    // add messages collection within conversation doc
+    await userDoc
+        .collection('conversations')
+        .doc(convID)
+        .collection('messages')
+        .add(welcome.toJson());
   }
 
   Future<String?> signInWithEmail(String email, String password) async {

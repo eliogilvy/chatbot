@@ -5,22 +5,27 @@ import 'package:provider/provider.dart';
 import '../provider/messaging_provider.dart';
 
 class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, required this.convoID});
+
+  final String convoID;
 
   @override
   Widget build(BuildContext context) {
     final messageProvider = Provider.of<MessagingProvider>(context);
-    return StreamBuilder(
-        stream: messageProvider.messages,
-        builder: (context, snapshot) {
-          final messages = snapshot.data ?? [];
-          return Chat(
-            messages: messages,
-            onSendPressed: (message) => messageProvider.addMessage(message),
-            user: messageProvider.getChatUser(),
-            theme: DefaultChatTheme(
-                backgroundColor: Theme.of(context).colorScheme.background),
-          );
-        });
+    final stream = messageProvider.messages(convoID);
+    return StreamBuilder<List<types.Message>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        print(snapshot.data);
+        return Chat(
+          messages: snapshot.data ?? [],
+          onSendPressed: (message) => print('sent'),
+          user: messageProvider.getChatUser(),
+          theme: DefaultChatTheme(
+            backgroundColor: Theme.of(context).colorScheme.background,
+          ),
+        );
+      },
+    );
   }
 }

@@ -4,62 +4,88 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:uuid/uuid.dart';
 
+import '../model/conversation.dart';
+
 class MessagingProvider extends ChangeNotifier {
   MessagingProvider({required this.fb, required this.auth}) {
     initCollection();
   }
+
   final FirebaseAuth auth;
   final FirebaseFirestore fb;
-  late CollectionReference _messagesCollection;
+  late CollectionReference _usersCollection;
 
-  void initCollection() {
-    _messagesCollection = fb
-        .collection('users')
-        .doc(auth.currentUser!.uid)
-        .collection('messages');
+  Future<List<Conversation>> get conversations async {
+    return loadConversations();
   }
 
-  // I want to return a stream of messages from the database in the form of a list of types.Message
-  Stream<List<types.Message>> get messages {
-    return _messagesCollection
+  // get stream of messages based on a convoid that is passed in
+  Stream<List<types.Message>>? messages(String convoId) {
+    final messageRef = _usersCollection
+        .doc(auth.currentUser!.uid)
+        .collection('conversations')
+        .doc(convoId)
+        .collection('messages')
         .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+        .snapshots();
+
+    final query = messageRef.map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return types.Message.fromJson(data);
+        final data = doc.data();
+        return types.TextMessage.fromJson(data);
       }).toList();
     });
+    return query;
   }
 
-  // I want to add a message to the database using createMessage, take in the types.PartialText userMessage
-
-  Future<void> addMessage(types.PartialText userMessage) async {
-    final message = createMessage(userMessage, false);
-    await _messagesCollection.add(
-      message.toJson(),
-    );
+  void initCollection() {
+    _usersCollection = fb.collection('users');
   }
+
+  Future<List<Conversation>> loadConversations() async {
+    final userDocRef = _usersCollection.doc(auth.currentUser!.uid);
+    final convoDocs = await userDocRef.collection('conversations').get();
+
+    final query = convoDocs.docs.map((doc) {
+      final conversationData = doc.data();
+      return Conversation.fromJson(conversationData);
+    }).toList();
+    return query;
+  }
+
+  Future<void> addConversation(Conversation conversation) async {
+    final userDocRef = _usersCollection.doc(auth.currentUser!.uid);
+    final conversationDocRef =
+        userDocRef.collection('conversations').doc(conversation.id);
+    await conversationDocRef.set(conversation.toJson());
+  }
+
+  // Future<void> addMessage(types.PartialText text, String conversationId) async {
+  //   final message = createMessage(text, false);
+  //   final conversationDocRef = _messagesCollection.doc(conversationId);
+  //   await conversationDocRef.collection('messages').add(message.toJson());
+
+  //   await _simulateBotResponse(text, conversationId);
+  // }
 
   types.TextMessage createMessage(types.PartialText text, bool isBot) {
     return types.TextMessage(
       id: const Uuid().v4(),
       author: isBot ? const types.User(id: 'bot') : getChatUser(),
       text: text.text,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
     );
   }
 
-  Future<void> _simulateBotResponse(types.PartialText userMessage) async {
-    types.PartialText botMessage = types.PartialText(
-      text: 'Response to ${userMessage.text}',
-    );
-    final message = createMessage(botMessage, true);
+  // Future<void> _simulateBotResponse(
+  //     types.PartialText userMessage, String conversationId) async {
+  //   types.PartialText botMessage = types.PartialText(
+  //     text: 'Response to ${userMessage.text}',
+  //   );
+  //   final message = createMessage(botMessage, true);
 
-    await _messagesCollection.add({
-      message.toJson(),
-    });
-  }
+  //   final conversationDocRef = _messagesCollection.doc(conversationId);
+  //   await conversationDocRef.collection('messages').add(message.toJson());
+  // }
 
   types.User getChatUser() {
     return types.User(
