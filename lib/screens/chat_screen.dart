@@ -18,6 +18,8 @@ class ChatScreen extends StatelessWidget {
             messages: messages,
             onSendPressed: (message) => messageProvider.addMessage(message),
             user: messageProvider.getChatUser(),
+            theme: DefaultChatTheme(
+                backgroundColor: Theme.of(context).colorScheme.background),
           );
         });
   }
