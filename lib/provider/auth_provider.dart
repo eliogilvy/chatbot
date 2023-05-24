@@ -6,13 +6,33 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:uuid/uuid.dart';
 
 class AuthProvider with ChangeNotifier {
-  AuthProvider({required this.firebaseAuth, required this.fb});
+  AuthProvider({required this.firebaseAuth, required this.fb}) {
+    initializeCurrentUser();
+  }
 
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore fb;
+  late DocumentReference<Map<String, dynamic>> userDoc;
+  late CollectionReference<Map<String, dynamic>> conversationsCollection;
+
+  Future<void> initializeCurrentUser() async {
+    final user = firebaseAuth.currentUser;
+    if (user != null) {
+      userDoc = fb.collection('users').doc(user.uid);
+      conversationsCollection = userDoc.collection('conversations');
+    }
+  }
 
   User? get user => firebaseAuth.currentUser;
   Stream<User?> get authStateChanges => firebaseAuth.authStateChanges();
+
+  // get firebase username
+  Future<String> getUserName() async {
+    final userDocSnap = await userDoc.get();
+    final userData = userDocSnap.data() as Map<String, dynamic>;
+
+    return userData['username'] as String;
+  }
 
   Future<String?> signUpWithEmail(
       String email, String password, String name) async {
@@ -33,8 +53,6 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _initUser(String email, String name) async {
-    final userDoc = fb.collection('users').doc(firebaseAuth.currentUser!.uid);
-
     // create initial flutter_chat_ui textmessage
     final welcome = types.TextMessage(
       id: const Uuid().v4(),

@@ -40,16 +40,30 @@ class MessagingProvider extends ChangeNotifier {
 
   void initCollection() {
     _usersCollection = fb.collection('users');
+
   }
 
-  Future<List<Conversation>> loadConversations() async {
+  Future<List<Conversation>> loadConversations({int? limit}) async {
     final userDocRef = _usersCollection.doc(auth.currentUser!.uid);
-    final convoDocs = await userDocRef.collection('conversations').get();
+    // get the conversations for the current user with an optional limit
+    final convoDocs = await userDocRef
+        .collection('conversations')
+        .orderBy('lastUpdated', descending: true)
+        .get();
 
+    // final convoDocs = await userDocRef
+    //     .collection('conversations')
+    //     .orderBy('lastUpdated', descending: true)
+    //     .get();
+
+    // final convoDocs = await userDocRef.collection('conversations').get();
+      
     final query = convoDocs.docs.map((doc) {
-      final conversationData = doc.data();
-      return Conversation.fromJson(conversationData);
+      final data = doc.data();
+      return Conversation.fromJson(data);
     }).toList();
+
+
     return query;
   }
 
