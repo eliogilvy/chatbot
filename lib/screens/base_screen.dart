@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../provider/navigation_provider.dart';
 import 'package:chat_app/screens/screen_list.dart';
-import '../widgets/utils/routes.dart';
 import '../widgets/nav_bar/nav_bar.dart';
 
 class BaseScreen extends StatelessWidget {

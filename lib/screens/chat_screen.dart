@@ -16,7 +16,6 @@ class ChatScreen extends StatelessWidget {
     return StreamBuilder<List<types.Message>>(
       stream: stream,
       builder: (context, snapshot) {
-        print(snapshot.data);
         return Chat(
           messages: snapshot.data ?? [],
           onSendPressed: (message) => print('sent'),

@@ -1,5 +1,3 @@
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-
 class Conversation {
   final String id;
   final String title;
