@@ -1,4 +1,5 @@
 import 'package:chat_app/provider/auth_provider.dart';
+import 'package:chat_app/provider/bot_provider.dart';
 import 'package:chat_app/provider/messaging_provider.dart';
 import 'package:chat_app/provider/navigation_provider.dart';
 import 'package:chat_app/provider/settings_provider.dart';
@@ -17,13 +18,20 @@ class ChatProvider extends StatelessWidget {
     final auth = FirebaseAuth.instance;
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(
+          create: (_) => NavigationProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SettingsProvider(),
+        ),
         ChangeNotifierProvider(
           create: (_) => MessagingProvider(fb: fb, auth: auth),
         ),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(firebaseAuth: auth, fb: fb),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => BotProvider(),
         ),
       ],
       child: child,

@@ -1,4 +1,4 @@
-import 'package:chat_app/widgets/utils/lists/convo_list.dart';
+import 'package:chat_app/widgets/lists/convo_list.dart';
 import 'package:flutter/material.dart';
 
 class ConversationsScreen extends StatelessWidget {
@@ -6,6 +6,6 @@ class ConversationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConvoList();
+    return const ConvoList();
   }
 }

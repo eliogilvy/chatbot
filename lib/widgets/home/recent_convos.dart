@@ -1,4 +1,4 @@
-import 'package:chat_app/widgets/utils/lists/convo_list.dart';
+import 'package:chat_app/widgets/lists/convo_list.dart';
 import 'package:flutter/material.dart';
 
 class RecentConvos extends StatelessWidget {

@@ -1,13 +1,20 @@
+import 'package:chat_app/widgets/nav_bar/nav_bar.dart';
 import 'package:flutter/material.dart';
 
 class NavigationProvider with ChangeNotifier {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   NavigationProvider();
-  int _currentIndex = 0;
+  TabItem _currentTab = TabItem.home;
+  ViewItem? _viewTab;
 
-  int get currentIndex => _currentIndex;
+  TabItem get currentTab => _currentTab;
+  ViewItem? get currentView => _viewTab;
 
-  void updateIndex(int index) {
-    _currentIndex = index;
-    notifyListeners();
+  void updateTab(int tabItem, BuildContext context,) {
+    _currentTab = TabItem.values[tabItem];
+  }
+
+  void updateView(int? viewItem) {
+    _viewTab = viewItem == null ? null : ViewItem.values[viewItem];
   }
 }

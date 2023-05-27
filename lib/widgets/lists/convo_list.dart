@@ -4,7 +4,7 @@ import 'package:chat_app/widgets/tiles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../model/conversation.dart';
+import '../../model/conversation.dart';
 
 class ConvoList extends StatelessWidget {
   const ConvoList({super.key, this.limit});
