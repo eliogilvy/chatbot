@@ -40,7 +40,6 @@ class MessagingProvider extends ChangeNotifier {
 
   void initCollection() {
     _usersCollection = fb.collection('users');
-
   }
 
   Future<List<Conversation>> loadConversations({int? limit}) async {
@@ -57,14 +56,21 @@ class MessagingProvider extends ChangeNotifier {
     //     .get();
 
     // final convoDocs = await userDocRef.collection('conversations').get();
-      
+
     final query = convoDocs.docs.map((doc) {
       final data = doc.data();
       return Conversation.fromJson(data);
     }).toList();
 
-
     return query;
+  }
+
+  Future<Conversation> getConversation(String convoId) async {
+    final userDocRef = _usersCollection.doc(auth.currentUser!.uid);
+    final convoDocRef = userDocRef.collection('conversations').doc(convoId);
+    final convoDoc = await convoDocRef.get();
+    final data = convoDoc.data();
+    return Conversation.fromJson(data!);
   }
 
   Future<void> addConversation(Conversation conversation) async {
@@ -74,19 +80,21 @@ class MessagingProvider extends ChangeNotifier {
     await conversationDocRef.set(conversation.toJson());
   }
 
-  // Future<void> addMessage(types.PartialText text, String conversationId) async {
-  //   final message = createMessage(text, false);
-  //   final conversationDocRef = _messagesCollection.doc(conversationId);
-  //   await conversationDocRef.collection('messages').add(message.toJson());
-
-  //   await _simulateBotResponse(text, conversationId);
-  // }
+  Future<void> addMessage(
+      types.PartialText text, String conversationId, bool isBot) async {
+    final message = createMessage(text, isBot);
+    final userDocRef = _usersCollection.doc(auth.currentUser!.uid);
+    final convoDocs =
+        userDocRef.collection('conversations').doc(conversationId);
+    await convoDocs.collection('messages').add(message.toJson());
+  }
 
   types.TextMessage createMessage(types.PartialText text, bool isBot) {
     return types.TextMessage(
       id: const Uuid().v4(),
       author: isBot ? const types.User(id: 'bot') : getChatUser(),
       text: text.text,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
     );
   }
 

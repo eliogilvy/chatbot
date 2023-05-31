@@ -25,36 +25,53 @@ class ChatNavBar extends StatelessWidget {
     ),
   ];
 
+  final List<BottomNavigationBarItem> i = const [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      label: 'Home',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.list),
+      label: 'Convos',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person),
+      label: 'Profile',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context);
-    final colorScheme = Theme.of(context).colorScheme;
     final auth = Provider.of<AuthProvider>(context);
     return StreamBuilder(
       stream: auth.authStateChanges,
       builder: (context, snapshot) {
         return snapshot.hasData
-            ? DotNavigationBar(
-                currentIndex: navProvider.currentTab.index,
-                items: items,
-                selectedItemColor: colorScheme.primary,
-                unselectedItemColor: colorScheme.secondary,
-                onTap: (index) => _onTap(
-                  index,
-                  navProvider,
-                  context,
-                  navProvider.currentTab,
-                ),
-                backgroundColor: colorScheme.background,
-                curve: Curves.decelerate,
+            // ? DotNavigationBar(
+            //     currentIndex: navProvider.currentTab.index,
+            //     items: items,
+            //     selectedItemColor: colorScheme.primary,
+            //     unselectedItemColor: colorScheme.secondary,
+            //     onTap: (index) => _onTap(
+            //       index,
+            //       navProvider,
+            //       context,
+            //       navProvider.currentTab,
+            //     ),
+            //     backgroundColor: colorScheme.background,
+            //     curve: Curves.decelerate,
+            //   )
+            ? BottomNavigationBar(
+                items: i,
+                onTap: (index) => _onTap(index, navProvider, context),
               )
             : const SizedBox.shrink();
       },
     );
   }
 
-  void _onTap(int index, NavigationProvider navProvider, BuildContext context,
-      TabItem tabItem) {
+  void _onTap(int index, NavigationProvider navProvider, BuildContext context) {
     //switch statement for route names
     String route = '';
     switch (index) {

@@ -12,7 +12,7 @@ class RecentConvos extends StatelessWidget {
         children: [
           Text(
             'Recent Conversations',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
           const ConvoList(),
         ],

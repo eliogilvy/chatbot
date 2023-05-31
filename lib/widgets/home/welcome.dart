@@ -25,7 +25,6 @@ class WelcomeWidget extends StatelessWidget {
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).colorScheme.primary,
                         ),
                         child: AnimatedTextKit(
                           animatedTexts: [

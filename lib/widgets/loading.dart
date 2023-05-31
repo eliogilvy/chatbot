@@ -6,7 +6,9 @@ class FallingDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LoadingAnimationWidget.fallingDot(
-        color: Theme.of(context).primaryColor, size: 50);
+    return Center(
+      child: LoadingAnimationWidget.fallingDot(
+          color: Theme.of(context).primaryColor, size: 50),
+    );
   }
 }
